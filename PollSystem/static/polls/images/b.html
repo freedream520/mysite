@@ -1,0 +1,17 @@
+<html>
+<head>
+<script type="text/javascript">
+	function freshtime()
+{
+document.write(base.business.util.UtilDate.getPrintDateString() );
+setTimeout(freshtime,1000);
+}
+</script>
+</head>
+<body>
+
+<form>
+<input type="button" value="Display timed alertbox!" onClick="freshtime()">
+</form>
+</body>
+</html>

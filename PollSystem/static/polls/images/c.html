@@ -1,0 +1,24 @@
+<html>
+<head>
+<title>哈哈哈哈</title>
+<meta http-equiv="Content-Type" content="text/html; charset=gb2312" />
+<script> 
+var x=0;
+function reflesh(){	
+	x=0;
+document.location.reload();
+}
+function xunhuan(){
+	document.location.reload();
+	x=x+1;
+}
+if x==0
+	setTimeout("reflesh()");
+setTimeout("xunhuan()",7000);
+document.getElementById("id").src=x+'.jpg';
+</script>
+</head>
+<body>
+	<img id="id"src="" />
+</body>
+</html>

@@ -1,0 +1,120 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+{% load staticfiles %}
+<head>
+	    <style type="text/css">
+<!--
+td,body{font-size:9pt}a:link{color:#000000;text-decoration:none}a:visited{COLOR:#000000;TEXT-DECORATION:none}a:active{color:green;text-decoration:none}a:hover{color:red;text-decoration:underline}body {
+margin-top: 0px;
+}
+
+.style24 {color: #3DB836; font-size: 8pt }
+.style26 {color: #FF8000; font-size: 8pt }
+.style28 {color: #6699ff; font-size: 8pt }
+.style30 {color: #996600; font-size: 8pt }
+.style32 {color: #FF0099; font-size: 8pt }
+
+--></style>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="imagetoolbar" content="no" />
+	<title>J.Moriarty's Cabin</title>
+	<link rel="stylesheet" type="text/css" href="{% static 'polls/style.css' %}" />
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3/jquery.min.js"></script>
+	<script type="text/javascript" src="{% static 'polls/jquery.featureList-1.0.0.js' %}"></script>
+	<style type="text/css">
+	
+		h3 {
+			margin: 0;	
+			padding: 7px 0 0 0;
+			font-size: 16px;
+			text-transform: uppercase;
+		}		
+		div#feature_list {
+			width: 950px;
+			height: 400px;
+			overflow: hidden;
+			position: relative;
+
+		}
+		div#mainform {
+			width: 950px;
+			height: 150px;
+			overflow: hidden;
+			position: relative;
+		}
+		div#feature_list ul {
+			position: absolute;
+			top: 0;
+			list-style: none;	
+			padding: 0;
+			margin: 0;
+		}
+		ul#maincontent {
+			left: 0;
+			z-index: 2;
+		}
+		ul#maincontent p{
+			line-height: 0.3;
+		}
+		ul#mainmark {
+			right: 0;
+			position: relative;
+			left: 450px;
+			bottom:190px;
+		}
+	
+	
+
+		
+		
+	</style>
+	<script language="javascript">
+		$(document).ready(function() {
+
+			$.featureList(
+				$("#tabs li a"),
+				$("#output li"), {
+					start_item	:	1
+				}
+			);
+
+			/*
+			
+			// Alternative
+
+			
+			$('#tabs li a').featureList({
+				output			:	'#output li',
+				start_item		:	1
+			});
+
+			*/
+
+		});
+	</script>
+</head>
+<body>
+	<div id="content">
+		<div id ="mainform">
+			<ul id="maincontent">
+				<a href="/"><h1>J.Moriarty .WebSite</h1></a>
+                <a href="/"><p>This is sample private Web</p></a>
+                <a href="{% static 'polls/game/game.html'%}"><p>The first module is Unity3D game, you may need to install Unity Player</p></a>
+                <a href="/appliction"><p>The second module put some Web applications</p></a>
+                <a href="/blog/index"><p>The third module to write personal blog</p></a>
+                <a href="http://weibo.com/manoj/profile"><p>The fourth module about my personal contacts</p></a>
+			</ul>
+			<ul id="mainmark">
+				<img src="{% static 'polls/images/mark.jpg'%}" />
+			</ul>
+		</div >
+		<hr />
+		
+		<div id="feature_list">
+			<a href="/websee/play"><p>播放</p></a>
+
+	
+		</div>
+	</div>
+</body>
+</html>
