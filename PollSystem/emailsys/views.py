@@ -195,10 +195,10 @@ def recvmail(request):
     except Exception, e:
                 return HttpResponse('ERRORS:'+str(e))
         
-    p=Emailaddress.objects.filter(emailtype='recv',user=mailmsg.user,host=mailmsg.host)   
+   # p=Emailaddress.objects.filter(emailtype='recv',user=mailmsg.user,host=mailmsg.host)   
     context = Context({
     'unseen_count':unseen,
-    'seen_count':Emailcontent.objects.filter(address=p).count()
+   # 'seen_count':Emailcontent.objects.filter(address=p).count()
     })
     context.update(csrf(request))
   #  for su,co in sub ,cont:
