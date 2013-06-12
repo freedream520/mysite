@@ -1,4 +1,4 @@
 from django.contrib import admin
 from emailsys.models import *
-admin.site.register(emailaddress)
-admin.site.register(emailcontent)
+admin.site.register(Emailaddress)
+admin.site.register(Emailcontent)
