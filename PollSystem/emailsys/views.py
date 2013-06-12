@@ -18,8 +18,7 @@ import string
 import base64
 import re  
 epath=os.getcwd().replace('\\', '/')
-sub=[]
-cont=[]
+unseen=0
 @csrf_protect
 def index(request):
     context = Context({
@@ -41,7 +40,7 @@ def login(request):
         host=request.POST.get('host','')
         password=request.POST.get('epassword','')
         if user and host and password:
-            address=emailaddress()
+            address=Emailaddress()
             if request.META.has_key('HTTP_X_FORWARDED_FOR'):  
                 address.login_ip =  request.META['HTTP_X_FORWARDED_FOR'].split(",")[0]
             else:  
@@ -66,7 +65,7 @@ def send_email(request):
                 ip =  request.META['HTTP_X_FORWARDED_FOR'].split(",")[0]
             else:  
                 ip = request.META['REMOTE_ADDR'].split(",")[0] 
-            mailmsg=emailaddress.objects.filter(login_ip=ip).order_by('-pub_date')[0]
+            mailmsg=Emailaddress.objects.filter(login_ip=ip).order_by('-pub_date')[0]
             mailmsg.emailtype='sent'
             host=mailmsg.host
             user=mailmsg.user
@@ -108,20 +107,18 @@ def recvmail(request):
         ip =  request.META['HTTP_X_FORWARDED_FOR'].split(",")[0]
     else:  
         ip = request.META['REMOTE_ADDR'].split(",")[0] 
-    mailmsg=emailaddress.objects.filter(login_ip=ip).order_by('-pub_date')[0]
+    mailmsg=Emailaddress.objects.filter(login_ip=ip).order_by('-pub_date')[0]
     host=mailmsg.host
     user=mailmsg.user
     EMAIL_HOST = 'imap'+'.'+host
     EMAIL_HOST_USER = user+'@'+host
     EMAIL_HOST_PASSWORD=mailmsg.pwd 
-    global sub
-    global cont
-    sub=[]
-    cont=[]
+    
     conn = imaplib.IMAP4(EMAIL_HOST)  
     conn.login(EMAIL_HOST_USER,EMAIL_HOST_PASSWORD)
     conn.select()
     typ, data = conn.search(None, 'UNSEEN')
+    global unseen
     unseen=0
     for inum in data[0].split():
         unseen=unseen+1
@@ -143,17 +140,41 @@ def recvmail(request):
           return '\n'.join([extract_body(part.get_payload()) for part in payload])
     try:
         for num in data[0].split():
+            econtent=Emailcontent()
             typ, msg_data = conn.fetch(num, '(RFC822)')   
             for response_part in msg_data:   
              if isinstance(response_part, tuple):   
                 msg = email.message_from_string(response_part[1])   
                 subject=msg['subject']
+                efrom=msg['From']
+                date=msg['Date']
                 try:
                     b=email.Header.decode_header(subject)[0][0].decode('utf-8')
                     
                 except:
                     b = email.Header.decode_header(subject)[0][0]
-                sub.append(b)
+                econtent.subject=b
+                efrom2=[]
+                try:
+                    g=email.Header.decode_header(efrom)[0][0].decode('utf-8')
+                    d=email.Header.decode_header(efrom)[1][0].decode('utf-8')
+                    efrom2.append(g)
+                    efrom2.append(d)
+                    econtent.emailfrom=str(efrom2)
+                    
+                except:
+                    g=email.Header.decode_header(efrom)[0][0]
+                    econtent.emailfrom=g
+                  
+                try:
+                    c=email.Header.decode_header(date)[0][0].decode('utf-8')
+                except:
+                    c= email.Header.decode_header(date)[0][0]
+                try:
+                    c=email.Header.decode_header(date)[0][0].decode('utf-8')
+                except:
+                    c= email.Header.decode_header(date)[0][0]
+                econtent.emaildate=c
                 payload=msg.get_payload() 
                 body=extract_body(payload)
                 try:
@@ -168,14 +189,16 @@ def recvmail(request):
                 except:
                     a=body.decode('utf-8')
                     a=htmlparser(a)
-                cont.append(a)  
+                econtent.content=a  
+                econtent.address=mailmsg
+                econtent.save()
     except Exception, e:
                 return HttpResponse('ERRORS:'+str(e))
         
-        
+    p=Emailaddress.objects.filter(emailtype='recv',user=mailmsg.user,host=mailmsg.host)   
     context = Context({
     'unseen_count':unseen,
-    'seen_count':emailaddress.objects.filter(emailtype='recv').count(),
+    'seen_count':Emailcontent.objects.filter(address=p).count()
     })
     context.update(csrf(request))
   #  for su,co in sub ,cont:
@@ -191,12 +214,14 @@ def reademail(request,pageNo=None):
         ip =  request.META['HTTP_X_FORWARDED_FOR'].split(",")[0]
     else:  
         ip = request.META['REMOTE_ADDR'].split(",")[0] 
-    mailmsg=emailaddress.objects.filter(login_ip=ip).order_by('-pub_date')[0]
+    mailmsg=Emailaddress.objects.filter(login_ip=ip).order_by('-pub_date')[0]
     host=mailmsg.host
     user=mailmsg.user
     EMAIL_HOST = 'imap'+'.'+host
     EMAIL_HOST_USER = user+'@'+host
-    EMAIL_HOST_PASSWORD=mailmsg.pwd 
+    EMAIL_HOST_PASSWORD=mailmsg.pwd
+    mailmsg.emailtype='recv'
+    mailmsg.save()
     conn = imaplib.IMAP4(EMAIL_HOST)  
     conn.login(EMAIL_HOST_USER,EMAIL_HOST_PASSWORD)
     conn.select()
@@ -212,7 +237,8 @@ def reademail(request,pageNo=None):
         pgNo=int(pageNo)  
     except:  
         pgNo=1
-    datas=emailcontent.objects.all()
+    readmsg=Emailaddress.objects.filter(login_ip=ip).order_by('-pub_date')[0]
+    datas=Emailcontent.objects.filter(address=readmsg).order_by('-id')[:unseen]
     paginator = Paginator(datas, 5)  
     if pgNo==0:  
         pgNo=1  
