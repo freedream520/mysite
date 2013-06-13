@@ -153,23 +153,17 @@ def recvmail(request):
                     
                 except:
                     b = email.Header.decode_header(subject)[0][0]
+                    b=b.decode('gbk')
+                subcode=email.Header.decode_header(subject)[0][1]
+                
                 econtent.subject=b
-                efrom2=[]
                 try:
-                    g=email.Header.decode_header(efrom)[0][0].decode('utf-8')
-                    d=email.Header.decode_header(efrom)[1][0].decode('utf-8')
-                    efrom2.append(g)
-                    efrom2.append(d)
-                    econtent.emailfrom=str(efrom2)
+                    d=email.Header.decode_header(efrom)[1][0]
+                    econtent.emailfrom=d
                     
                 except:
                     g=email.Header.decode_header(efrom)[0][0]
                     econtent.emailfrom=g
-                  
-                try:
-                    c=email.Header.decode_header(date)[0][0].decode('utf-8')
-                except:
-                    c= email.Header.decode_header(date)[0][0]
                 try:
                     c=email.Header.decode_header(date)[0][0].decode('utf-8')
                 except:
@@ -179,8 +173,9 @@ def recvmail(request):
                 body=extract_body(payload)
                 try:
                     a=base64.decodestring(body)
-                    if isinstance(b,str):
+                    if isinstance(a,str):
                         a=htmlparser(a).strip(" ").strip("\n")
+                        a=a.decode('gbk')
                     else:
                         a=body.decode('utf-8')
                         a=htmlparser(a)
