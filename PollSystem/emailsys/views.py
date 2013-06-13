@@ -171,20 +171,14 @@ def recvmail(request):
                 econtent.emaildate=c
                 payload=msg.get_payload() 
                 body=extract_body(payload)
-                try:
-                    a=base64.decodestring(body)
-                    if isinstance(a,str):
-                        a=htmlparser(a).strip(" ").strip("\n")
-                        a=a.decode('gbk')
-                    else:
-                        a=body.decode('utf-8')
-                        a=htmlparser(a)
-                    
-                    
-                except:
+                if subcode=='utf-8':
                     a=body.decode('utf-8')
                     a=htmlparser(a)
-                econtent.content=a  
+                else:
+                    a=base64.decodestring(body)
+                    a=htmlparser(a).strip(" ").strip("\n")
+                    a=a.decode('gbk')
+                econtent.content=a
                 econtent.address=mailmsg
                 econtent.save()
     except Exception, e:
