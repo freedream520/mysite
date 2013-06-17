@@ -176,7 +176,7 @@ def recvmail(request):
                     econtent.address=mailmsg
                     econtent.save()
                 except:
-                    trecontent.content="无法显示内容"
+                    econtent.content="无法显示内容"
                     econtent.address=mailmsg
                     econtent.save()
     except Exception, e:
