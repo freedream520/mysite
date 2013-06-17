@@ -15,8 +15,7 @@ import os
 import imaplib   
 import email   
 import string
-import base64
-import re  
+import base64 
 epath=os.getcwd().replace('\\', '/')
 unseen=0
 @csrf_protect
@@ -123,16 +122,6 @@ def recvmail(request):
     for inum in data[0].split():
         unseen=unseen+1
 
-    def htmlparser(html):
-        html=re.sub("<[\\s]*?script[^>]*?>[\\s\\S]*?<[\\s]*?\\/[\\s]*",'',html)
-        html=re.sub("<[\\s]*?style[^>]*?>[\\s\\S]*?<[\\s]*?\\/[\\s]*?s",'',html)
-        html=re.sub("<[^>]+>",'',html)
-        html=re.sub('script>','',html)
-        html=re.sub('tyle>','',html)
-        html=re.sub('/s','',html)
-        html=re.sub('a>[^\>]+>','',html)
-        html=re.sub('startdate>[^\>]+>','',html)
-        return html
     def extract_body(payload):   
         if isinstance(payload,str):   
           return payload   
@@ -172,15 +161,24 @@ def recvmail(request):
                 payload=msg.get_payload() 
                 body=extract_body(payload)
                 if subcode=='utf-8':
-                    a=body.decode('utf-8')
-                    a=htmlparser(a)
+                    try:
+                        a=base64.decodestring(body)
+                    except:
+                        a=body.decode('utf-8')
+                elif subcode=='gb2312':
+                    a=base64.decodestring(body)
+                    a=a.decode('gb2312','ignore')
                 else:
                     a=base64.decodestring(body)
-                    a=htmlparser(a).strip(" ").strip("\n")
                     a=a.decode('gbk')
-                econtent.content=a
-                econtent.address=mailmsg
-                econtent.save()
+                try:
+                    econtent.content=a
+                    econtent.address=mailmsg
+                    econtent.save()
+                except:
+                    trecontent.content="无法显示内容"
+                    econtent.address=mailmsg
+                    econtent.save()
     except Exception, e:
                 return HttpResponse('ERRORS:'+str(e))
         
@@ -190,13 +188,7 @@ def recvmail(request):
    # 'seen_count':Emailcontent.objects.filter(address=p).count()
     })
     context.update(csrf(request))
-  #  for su,co in sub ,cont:
-   #     content=emailcontent()
-   #     content.email_address=emailaddress.objects.filter(login_ip=ip).order_by('-pub_date')[0]
-   #     content.email_address.emailtype='recv'
-   #     content.subject=su
-   #     content.content=co
-   #     content.save()
+
     return render_to_response('emailsys/inbox.html',context)
 def reademail(request,pageNo=None):
     if request.META.has_key('HTTP_X_FORWARDED_FOR'):  
