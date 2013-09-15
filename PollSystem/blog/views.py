@@ -87,9 +87,9 @@ def leave_comment(request,eid=None):
         essay=Essay.objects.get(id=eid)
         if uname and content and email and essay:
             comment=Comment()
-           comment.uname=re.sub("/<(.*)>.*<\/\1>|<(.*) \/>/",'',uname)
-            comment.content=re.sub("/<(.*)>.*<\/\1>|<(.*) \/>/",'',content)
-            comment.email=re.sub("/<(.*)>.*<\/\1>|<(.*) \/>/",'',email)
+            comment.uname=uname
+            comment.content=content
+            comment.email=email
             comment.essay=essay
             comment.pub_date=datetime.datetime.now()
             comment.save()
